@@ -1,0 +1,15 @@
+<resources>
+
+    <string name="fajr">Fajr</string>
+    <string name="shorouk">Shorouk</string>
+    <string name="duhr">Duhr</string>
+    <string name="asr">Asr</string>
+    <string name="maghrib">Magrib</string>
+    <string name="ishaa">Isha</string>
+
+    <string name="jumuah">Jumu"'"ah</string>
+
+    <string name="notificationTitle">It is time for</string>
+    <string name="notificationMessage">It is now time for prayer</string>
+
+</resources>
