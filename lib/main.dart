@@ -65,12 +65,10 @@ class MyApp extends StatelessWidget {
         light: ThemeData(
           brightness: Brightness.light,
           primarySwatch: Colors.blue,
-          accentColor: Colors.lightBlue,
         ),
         dark: ThemeData(
           brightness: Brightness.dark,
-          primarySwatch: Colors.blue,
-          accentColor: Colors.lightBlue,
+          primarySwatch: Colors.deepOrange,
         ),
         initial: savedThemeMode ?? AdaptiveThemeMode.light,
         builder: (theme, darkTheme) => MaterialApp(
@@ -89,34 +87,6 @@ class MyApp extends StatelessWidget {
           home: PreferenceUtils.getBool(Configuration.IS_FIRST_STARTUP, true) == true ? OnBoardingPage() : MyHomePage(),
           builder: EasyLoading.init(),
         ),
-      ),
-    );
-
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider<SettingsProvider>(create: (_) => SettingsProvider()),
-        ChangeNotifierProvider<PrayersProvider>(create: (_) => PrayersProvider()),
-      ],
-      child: Builder(
-        builder: (BuildContext context) {
-          return MaterialApp(
-            localizationsDelegates: [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              localizationDelegate
-            ],
-            //debugShowCheckedModeBanner: false,
-            supportedLocales: localizationDelegate.supportedLocales,
-            locale: localizationDelegate.currentLocale,
-            //theme: ThemeData(primaryColor: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,),
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
-            themeMode: ThemeMode.system,
-            home: PreferenceUtils.getBool(Configuration.IS_FIRST_STARTUP, true) == true ? OnBoardingPage() : MyHomePage(),
-            builder: EasyLoading.init(),
-          );
-        },
       ),
     );
   }

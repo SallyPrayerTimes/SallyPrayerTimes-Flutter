@@ -138,6 +138,7 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
     Locale appLocale = Localizations.localeOf(context);
     double nextPrayerTimeFontSize = appLocale.languageCode == Configuration.arabicKey ? 20.0 : 35.0;
     return Scaffold(
+      backgroundColor: Color(0xf5f5f7),
       body: Center(
         child: Container(
           child: Column(
@@ -256,13 +257,13 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
                                       Padding(
                                         padding: const EdgeInsets.only(top: 0, bottom: 0, right: 0, left: 10.0),
                                         child: Text(
-                                          nextPrayerLabel, style: TextStyle(color: Colors.white, fontSize: 10.0),
+                                          nextPrayerLabel, style: TextStyle(color: Colors.white, fontSize: 10.0, fontWeight: FontWeight.w600),
                                         ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.only(top: 0, bottom: 0, right: 0, left: 10.0),
                                         child: Text(
-                                          Provider.of<PrayersProvider>(context, listen: true).nextPrayerName, style: TextStyle(color: Colors.white, fontSize: 20.0),
+                                          Provider.of<PrayersProvider>(context, listen: true).nextPrayerName, style: TextStyle(color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.w600),
                                         ),
                                       ),
                                     ],
@@ -272,7 +273,7 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
                                       Padding(
                                         padding: const EdgeInsets.only(top: 0, bottom: 0, right: 0, left: 5.0),
                                         child: Text(
-                                          Provider.of<PrayersProvider>(context, listen: true).nextPrayerTime, style: TextStyle(color: Colors.white, fontSize: nextPrayerTimeFontSize),
+                                          Provider.of<PrayersProvider>(context, listen: true).nextPrayerTime, style: TextStyle(color: Colors.white, fontSize: nextPrayerTimeFontSize, fontWeight: FontWeight.w600),
                                         ),
                                       ),
                                     ],
@@ -296,7 +297,7 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
                                       Padding(
                                         padding: const EdgeInsets.only(top: 10, bottom: 0, right: 0, left: 0.0),
                                         child: Text(
-                                          (Provider.of<SettingsProvider>(context, listen: true).country + ' / ' +Provider.of<SettingsProvider>(context, listen: true).city).length > 35 ? (Provider.of<SettingsProvider>(context, listen: true).country + ' / ' +Provider.of<SettingsProvider>(context, listen: true).city).substring(0,35) : (Provider.of<SettingsProvider>(context, listen: true).country + ' / ' +Provider.of<SettingsProvider>(context, listen: true).city), style: TextStyle(color: Colors.white, fontSize: 14.0),
+                                          (Provider.of<SettingsProvider>(context, listen: true).country + ' / ' +Provider.of<SettingsProvider>(context, listen: true).city).length > 35 ? (Provider.of<SettingsProvider>(context, listen: true).country + ' / ' +Provider.of<SettingsProvider>(context, listen: true).city).substring(0,35) : (Provider.of<SettingsProvider>(context, listen: true).country + ' / ' +Provider.of<SettingsProvider>(context, listen: true).city), style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.w600),
                                         ),
                                       ),
                                     ],
@@ -316,11 +317,11 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
                 child: Container(
                   child: GridView.count(
                     primary: false,
-                    padding: const EdgeInsets.fromLTRB(10.0, 20, 10.0, 10.0),
+                    padding: const EdgeInsets.fromLTRB(10.0, 20, 10.0, 20.0),
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                     crossAxisCount: 1,
-                    childAspectRatio: 5.0,
+                    childAspectRatio: 6.0,
                     children: <Widget>[
                       getPrayerContainer('fajr',Provider.of<PrayersProvider>(context, listen: true).fajrTime,Provider.of<PrayersProvider>(context, listen: true).fajrPrayerIcon,Provider.of<ThemeProvider>(context, listen: true).fajrPrayerColor,(){athanNotificationIconHandler(1);}),
                       getPrayerContainer('shorouk',Provider.of<PrayersProvider>(context, listen: true).shoroukTime,Provider.of<PrayersProvider>(context, listen: true).shoroukPrayerIcon,Provider.of<ThemeProvider>(context, listen: true).shoroukPrayerColor,(){athanNotificationIconHandler(2);}),
@@ -344,7 +345,9 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
       prayerName = 'jumuah';
     };
     return Container(
+      height: 15,
       decoration: BoxDecoration(
+        border: Border.all(color: prayersColor, width: 0.2),
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         boxShadow: <BoxShadow>[
           BoxShadow(
@@ -355,7 +358,7 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
         ],
         color: Colors.white,
       ),
-      padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 0.0),
       child: Row(
         children: <Widget>[
           Expanded(
@@ -366,8 +369,11 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      translate(prayerName), style: TextStyle(color: prayersColor, fontSize: 14.0),textAlign: TextAlign.center,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 0, bottom: 0, right: 10, left: 10),
+                      child: Text(
+                        translate(prayerName), style: TextStyle(color: prayersColor, fontSize: 14.0, fontWeight: FontWeight.w600),textAlign: TextAlign.center,
+                      ),
                     ),
                   ],
                 ),
@@ -384,7 +390,7 @@ class _PrayersPageState extends State<PrayersPage> with WidgetsBindingObserver{
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.only(top: 0, bottom: 0, right: 10, left: 10),
-                      child:Text(prayerTime, style: TextStyle(color: prayersColor, fontSize: 14.0),textAlign: TextAlign.center,
+                      child:Text(prayerTime, style: TextStyle(color: prayersColor, fontSize: 14.0, fontWeight: FontWeight.w600),textAlign: TextAlign.center,
                       ),
                     ),
                     IconButton(icon: Icon(prayerAthanNotificationIcon, color: prayersColor,), onPressed: notificationAthanIconOnPressedFunction,),

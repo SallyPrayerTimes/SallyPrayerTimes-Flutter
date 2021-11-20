@@ -2,6 +2,7 @@ package com.sallyprayertimes;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import com.sallyprayertimes.widget.SmallWidgetProviderService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -48,7 +50,7 @@ public class MainActivity extends FlutterActivity{
                     result.success(list);
                 }else if(call.method.equals("refreshWidget")){
                     if(SmallWidgetProvider.isEnabled){
-                        Toast.makeText(MainActivity.this, "refreshWidget", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(MainActivity.this, "refreshWidget", Toast.LENGTH_LONG).show();
                         startService(new Intent(MainActivity.this, SmallWidgetProviderService.class));
                     }
                 }

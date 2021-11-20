@@ -110,7 +110,7 @@ public class SmallWidgetProviderService extends Service {
         remoteViews.setInt(R.id.ishaa_label, "setTextColor", android.graphics.Color.WHITE);
         remoteViews.setInt(R.id.ishaa_time, "setTextColor", android.graphics.Color.WHITE);
 
-        String nextPrayerColorString = String.valueOf(PreferenceHandler.getSingleton().getValue(PreferenceHandler.WIDGET_BACKGROUND_COLOR, "255:233:30:99"));
+        String nextPrayerColorString = String.valueOf(PreferenceHandler.getSingleton().getValue(PreferenceHandler.WIDGET_BACKGROUND_COLOR, "255:13:67:13"));
         String[] myColor = nextPrayerColorString.split(":");
         int backgroundColor = Color.argb(Integer.valueOf(myColor[0]),Integer.valueOf(myColor[1]),Integer.valueOf(myColor[2]),Integer.valueOf(myColor[3]));
 
@@ -155,7 +155,7 @@ public class SmallWidgetProviderService extends Service {
     }
 
     public String getPrayerFinalTime(int prayerTotalMinutes) {
-        formatter.applyPattern("00");//get final fajr time
+        formatter.applyPattern("00");
         int salatHour = prayerTotalMinutes / 60;
         int salatMinutes = prayerTotalMinutes % 60;
 

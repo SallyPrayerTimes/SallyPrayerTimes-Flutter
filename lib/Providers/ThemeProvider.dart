@@ -12,7 +12,7 @@ class ThemeProvider with ChangeNotifier {
   }
   ThemeProvider._internal();
 
-  Color _appBarColor = Color(PreferenceUtils.getInt(Configuration.APP_BAR_COLOR, Colors.teal.value));
+  Color _appBarColor = Color(PreferenceUtils.getInt(Configuration.APP_BAR_COLOR, Colors.teal.shade800.value));
   Color get appBarColor{
     return _appBarColor;
   }
@@ -22,7 +22,7 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Color _navigationBarColor = Color(PreferenceUtils.getInt(Configuration.NAVIGATION_BAR_COLOR, Colors.indigoAccent.value));
+  Color _navigationBarColor = Color(PreferenceUtils.getInt(Configuration.NAVIGATION_BAR_COLOR, Colors.teal.shade800.value));
   Color get navigationBarColor{
     return _navigationBarColor;
   }
@@ -43,7 +43,7 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Color _nextPrayerColor = Color(PreferenceUtils.getInt(Configuration.NEXT_PRAYER_COLOR, Colors.deepOrange.value));
+  Color _nextPrayerColor = Color(PreferenceUtils.getInt(Configuration.NEXT_PRAYER_COLOR, Colors.purple.value));
   Color get nextPrayerColor{
     return _nextPrayerColor;
   }
@@ -59,7 +59,7 @@ class ThemeProvider with ChangeNotifier {
     return Color.fromARGB(int.parse(myColor[0]), int.parse(myColor[1]), int.parse(myColor[2]), int.parse(myColor[3]));
   }
 
-  Color _widgetBackgroundColor = hexFromRgbString(PreferenceUtils.getString(Configuration.WIDGET_BACKGROUND_COLOR, '255:233:30:99'));
+  Color _widgetBackgroundColor = hexFromRgbString(PreferenceUtils.getString(Configuration.WIDGET_BACKGROUND_COLOR, '255:13:67:13'));
   Color get widgetBackgroundColor{
     return _widgetBackgroundColor;
   }
