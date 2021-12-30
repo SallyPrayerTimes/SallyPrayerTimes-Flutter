@@ -70,44 +70,58 @@ public class AthanServiceBroasdcastReceiver extends BroadcastReceiver{
 
     private static void startAlarmManager(Context context)
     {
-        Calendar calendar = Calendar.getInstance();
+        try{
+            Calendar calendar = Calendar.getInstance();
 
-        AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent AthanServiceBroasdcastReceiverIntent = new Intent(context, AthanServiceBroasdcastReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(context, PreferenceHandler.AthanIntentRequestCode, AthanServiceBroasdcastReceiverIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager am = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+            Intent AthanServiceBroasdcastReceiverIntent = new Intent(context, AthanServiceBroasdcastReceiver.class);
+            PendingIntent pi = PendingIntent.getBroadcast(context, PreferenceHandler.AthanIntentRequestCode, AthanServiceBroasdcastReceiverIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        am.cancel(pi);
+            am.cancel(pi);
 
-        int nextPrayerMinutes = getNextPrayerTimeMinutes();
-        int salatHour = nextPrayerMinutes / 60;
-        int salatMinutes = nextPrayerMinutes % 60;
+            int salatHour;
+            int salatMinutes;
+            int nextPrayerMinutes;
+            nextPrayerMinutes = getNextPrayerTimeMinutes();
+            if(nextPrayerMinutes >= 60){
+                salatHour = nextPrayerMinutes / 60;
+                salatMinutes = nextPrayerMinutes % 60;
+            }else{
+                salatHour = 0;
+                salatMinutes = nextPrayerMinutes;
+            }
 
-        calendar.set(Calendar.HOUR_OF_DAY , salatHour);
-        calendar.set(Calendar.MINUTE , salatMinutes);
-        calendar.set(Calendar.SECOND , 0);
+            calendar.set(Calendar.HOUR_OF_DAY , salatHour);
+            calendar.set(Calendar.MINUTE , salatMinutes);
+            calendar.set(Calendar.SECOND , 0);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC, calendar.getTimeInMillis()  , pi);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(AlarmManager.RTC, calendar.getTimeInMillis()  , pi);
-        } else {
-            am.set(AlarmManager.RTC, calendar.getTimeInMillis()  , pi);
-        }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC, calendar.getTimeInMillis()  , pi);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                am.setExact(AlarmManager.RTC, calendar.getTimeInMillis()  , pi);
+            } else {
+                am.set(AlarmManager.RTC, calendar.getTimeInMillis()  , pi);
+            }
+        }catch (Exception ex){}
     }
 
     private static int getNextPrayerTimeMinutes()
     {
-        int nextPrayerTimeMinutes = 0;
-        switch (PrayersTimes.nextPrayerTimeCode)
-        {
-            case 0: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[0]; break;
-            case 1: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[1]; break;
-            case 2: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[2]; break;
-            case 3: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[3]; break;
-            case 4: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[4]; break;
-            case 5: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[5]; break;
+        try{
+            int nextPrayerTimeMinutes = 0;
+            switch (PrayersTimes.nextPrayerTimeCode)
+            {
+                case 0: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[0]; break;
+                case 1: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[1]; break;
+                case 2: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[2]; break;
+                case 3: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[3]; break;
+                case 4: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[4]; break;
+                case 5: nextPrayerTimeMinutes = PrayersTimes.allPrayrTimesInMinutes[5]; break;
+            }
+            return nextPrayerTimeMinutes;
+        }catch (Exception ex){
+            return 0;
         }
-        return nextPrayerTimeMinutes;
     }
 
     public static String getAthanAlertType(){

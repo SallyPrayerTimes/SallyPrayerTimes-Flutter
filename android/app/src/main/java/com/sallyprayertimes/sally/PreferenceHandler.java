@@ -92,8 +92,10 @@ public class PreferenceHandler {
 
     public void setValue(String key, String value)
     {
-        SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
-        editor.putString(PREFIX + key, value);
-        editor.commit();
+        try{
+            SharedPreferences.Editor editor = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
+            editor.putString(PREFIX + key, value);
+            editor.commit();
+        }catch (Exception ex){}
     }
 }

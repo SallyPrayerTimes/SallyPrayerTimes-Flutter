@@ -7,7 +7,7 @@ import 'package:sally_prayer_times/Providers/SettingsProvider.dart';
 
 class HijriTime{
   static final HijriTime _HijriTime = new HijriTime._internal();
-  static HijriCalendar hijriCalendar;
+  static late HijriCalendar hijriCalendar;
   factory HijriTime() {
     DateTime dateTimeNow = DateTime.utc(DateTime.now().year,DateTime.now().month,DateTime.now().day+int.parse(PreferenceUtils.getString(Configuration.PRAYER_TIMES_HIJRI_ADJUSTMENT, '0')));
     hijriCalendar = new HijriCalendar.fromDate(dateTimeNow);
@@ -20,17 +20,17 @@ class HijriTime{
     hijriCalendar = new HijriCalendar.fromDate(dateTimeNow);
   }
 
-  int _hijriDay;
-  int get hijriDay{
+  int? _hijriDay;
+  int? get hijriDay{
     _hijriDay = hijriCalendar.hDay;
     return _hijriDay;
   }
-  set hijriDay(int value) {
+  set hijriDay(int? value) {
     _hijriDay = value;
   }
 
-  String _hijriMonth;
-  String get hijriMonth{
+  String? _hijriMonth;
+  String? get hijriMonth{
     switch(hijriCalendar.hMonth){
       case 1: {_hijriMonth = translate('Muharram');} break;
       case 2: {_hijriMonth = translate('Safar');} break;
@@ -47,16 +47,16 @@ class HijriTime{
     }
     return _hijriMonth;
   }
-  set hijriMonth(String value) {
+  set hijriMonth(String? value) {
     _hijriMonth = value;
   }
 
-  int _hijriYear;
-  int get hijriYear{
+  int? _hijriYear;
+  int? get hijriYear{
     _hijriYear = hijriCalendar.hYear;
     return _hijriYear;
   }
-  set hijriYear(int value) {
+  set hijriYear(int? value) {
     _hijriYear = value;
   }
 
@@ -81,8 +81,8 @@ class MiladiTime{
   }
   MiladiTime._internal();
 
-  String _miladiMonth;
-  String get miladiMonth{
+  String? _miladiMonth;
+  String? get miladiMonth{
     switch(DateTime.now().month){
       case 1: {_miladiMonth = translate('January');} break;
       case 2: {_miladiMonth = translate('February');} break;
@@ -99,7 +99,7 @@ class MiladiTime{
     }
     return _miladiMonth;
   }
-  set miladiMonth(String value) {
+  set miladiMonth(String? value) {
     _miladiMonth = value;
   }
 }

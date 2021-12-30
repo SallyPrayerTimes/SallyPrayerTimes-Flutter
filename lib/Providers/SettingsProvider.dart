@@ -39,8 +39,8 @@ class SettingsProvider with ChangeNotifier {
   }
   set LocationLongLat(Map<String, String> value){
     _LocationLongLat = value;
-    longitude = value['longitude'];
-    latitude = value['latitude'];
+    longitude = value['longitude']!;
+    latitude = value['latitude']!;
     notifyListeners();
     AthanServiceManager.startService();
   }
@@ -87,32 +87,32 @@ class SettingsProvider with ChangeNotifier {
     HijriTime().init();
   }
 
-  int _hijriDay = HijriTime().hijriDay;
-  int get hijriDay{
+  int? _hijriDay = HijriTime().hijriDay;
+  int? get hijriDay{
     _hijriDay = HijriTime().hijriDay;
     return _hijriDay;
   }
-  set hijriDay(int value) {
+  set hijriDay(int? value) {
     _hijriDay = value;
     notifyListeners();
   }
 
-  String _hijriMonth = HijriTime().hijriMonth;
-  String get hijriMonth{
+  String? _hijriMonth = HijriTime().hijriMonth;
+  String? get hijriMonth{
     _hijriMonth = HijriTime().hijriMonth;
     return _hijriMonth;
   }
-  set hijriMonth(String value) {
+  set hijriMonth(String? value) {
     _hijriMonth = value;
     notifyListeners();
   }
 
-  int _hijriYear = HijriTime().hijriYear;
-  int get hijriYear{
+  int? _hijriYear = HijriTime().hijriYear;
+  int? get hijriYear{
     _hijriYear = HijriTime().hijriYear;
     return _hijriYear;
   }
-  set hijriYear(int value) {
+  set hijriYear(int? value) {
     _hijriYear = value;
     notifyListeners();
   }

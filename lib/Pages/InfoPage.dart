@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:sally_prayer_times/Providers/ThemeProvider.dart';
 
 class InfoPage extends StatefulWidget{
-  InfoPage({Key key}) : super(key: key);
+  InfoPage({Key? key}) : super(key: key);
   @override
   _InfoPage createState() => _InfoPage();
 }
@@ -26,7 +26,7 @@ class _InfoPage extends State<InfoPage>{
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 20, bottom: 0, right: 10, left: 10),
-                      child: Text(translate('Version')+': 20.11.21(30)', style: TextStyle(fontSize: 18, color: appBarColor,),maxLines: 50,),
+                      child: Text(translate('Version')+': 30.12.21(32)', style: TextStyle(fontSize: 18, color: appBarColor,),maxLines: 50,),
                     ),
                   ),
                 ),

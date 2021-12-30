@@ -4,6 +4,7 @@ import 'package:flutter_translate/flutter_translate.dart';
 import 'package:sally_prayer_times/Classes/Configuration.dart';
 import 'package:sally_prayer_times/Providers/PrayersProvider.dart';
 import 'package:sally_prayer_times/Providers/SettingsProvider.dart';
+import 'package:sally_prayer_times/Providers/ThemeProvider.dart';
 
 class AthanServiceManager{
 
@@ -17,13 +18,12 @@ class AthanServiceManager{
 
   static void startService() async{
     await methodChannel.invokeMethod("startService");
-    await getPrayerTimes();
+    getPrayerTimes();
   }
 
-  static void getPrayerTimes() async{
-    List<dynamic> data = <dynamic>[];
-    data = await methodChannel.invokeMethod("getPrayersTimes");
-    PrayersProvider().nextPrayerTimeCode = int.parse(data[0]);
+  static Future<List<dynamic>> getPrayerTimes() async{
+    List<dynamic>? data = await methodChannel.invokeMethod("getPrayersTimes");
+    PrayersProvider().nextPrayerTimeCode = int.parse(data![0]);
     PrayersProvider().fajrTimeInMinutes = int.parse(data[1]);
     PrayersProvider().shoroukTimeInMinutes = int.parse(data[2]);
     PrayersProvider().duhrTimeInMinutes = int.parse(data[3]);
@@ -52,6 +52,7 @@ class AthanServiceManager{
       case 4: {PrayersProvider().nextPrayerTime = PrayersProvider().maghribTime;PrayersProvider().nextPrayerName = translate('maghrib');} break;
       case 5: {PrayersProvider().nextPrayerTime = PrayersProvider().ishaaTime;PrayersProvider().nextPrayerName = translate('ishaa');} break;
     }
+    return data;
   }
 
   static String getFinaleSalatTime(int salatTime)

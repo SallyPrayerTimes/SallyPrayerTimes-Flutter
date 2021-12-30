@@ -3,11 +3,13 @@ package com.sallyprayertimes.sally;
 import android.content.Context;
 import android.widget.Toast;
 
+import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class PrayersTimes {
 
-    public static int nextPrayerTimeCode;
+    public static int nextPrayerTimeCode = 0;
 
     private static PrayersTimes prayersTimes;
 
@@ -18,19 +20,46 @@ public class PrayersTimes {
         return prayersTimes;
     }
 
-    static public int[] allPrayrTimesInMinutes;
+    static public int[] allPrayrTimesInMinutes = new int[6];
 
     private final double DegToRad = 0.017453292;
     private final double RadToDeg = 57.29577951;
-    private double dec;
-    private double fajrAlt;
-    private double ishaAlt;
+    private double dec = 0;
+    private double fajrAlt = 0;
+    private double ishaAlt = 0;
 
     public void init(Context context) {
 
-        double longitude = Double.valueOf(PreferenceHandler.getSingleton().getValue(PreferenceHandler.PRAYER_TIMES_LONGITUDE, "39.8409"));
-        double latitude = Double.valueOf(PreferenceHandler.getSingleton().getValue(PreferenceHandler.PRAYER_TIMES_LATITUDE, "21.4309"));
-        double timezone = Double.valueOf(PreferenceHandler.getSingleton().getValue(PreferenceHandler.PRAYER_TIMES_TIMEZONE, "3.0"));
+        String longitudeString = PreferenceHandler.getSingleton().getValue(PreferenceHandler.PRAYER_TIMES_LONGITUDE, "39.8409");
+        String latitudeString = PreferenceHandler.getSingleton().getValue(PreferenceHandler.PRAYER_TIMES_LATITUDE, "21.4309");
+        String timezoneString = PreferenceHandler.getSingleton().getValue(PreferenceHandler.PRAYER_TIMES_TIMEZONE, "3.0");
+
+        double longitude = 39.8409;
+        double latitude = 21.4309;
+        double timezone = 3.0;
+
+        try{
+            longitude = Double.parseDouble(longitudeString);
+            latitude = Double.parseDouble(latitudeString);
+            timezone = Double.parseDouble(timezoneString);
+        }catch (Exception ex){
+            try{
+                NumberFormat _format = NumberFormat.getInstance(Locale.US);
+                longitude = Double.parseDouble(_format.parse(longitudeString).toString());
+                latitude = Double.parseDouble(_format.parse(latitudeString).toString());
+                timezone = Double.parseDouble(_format.parse(timezoneString).toString());
+            }catch (Exception exx){
+                try{
+                    NumberFormat _format = NumberFormat.getInstance(Locale.US);
+                    longitude = Double.parseDouble(_format.format(longitudeString));
+                    latitude = Double.parseDouble(_format.format(latitudeString));
+                    timezone = Double.parseDouble(_format.format(timezoneString));
+                }catch (Exception exxx){
+                    Toast.makeText(context, "this apps not working on your device", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+        }
 
         String calculationMethod = PreferenceHandler.getSingleton().getValue(PreferenceHandler.PRAYER_TIMES_CALCULATION_METHOD, PreferenceHandler.MuslimWorldLeague);
         String madhab = PreferenceHandler.getSingleton().getValue(PreferenceHandler.PRAYER_TIMES_MADHAB, "shafi3i");
@@ -202,17 +231,13 @@ public class PrayersTimes {
 
         boolean b = true;
 
-        while (b) {//adjust prayer times
-            for (int i = 0; i < allPrayrTimesInMinutes.length; i++) {
-                if (allPrayrTimesInMinutes[i] > 1440) {
-                    for (int j = 0; j < allPrayrTimesInMinutes.length; j++) {
-                        allPrayrTimesInMinutes[j] -= 720;
-                    }
-                    break;
+        for (int i = 0; i < allPrayrTimesInMinutes.length; i++) {
+            if (allPrayrTimesInMinutes[i] > 1440) {
+                for (int j = 0; j < allPrayrTimesInMinutes.length; j++) {
+                    allPrayrTimesInMinutes[j] -= 720;
                 }
+                break;
             }
-
-            b = false;
         }
 
         this.nextPrayerTimeCode = getNextPrayer();

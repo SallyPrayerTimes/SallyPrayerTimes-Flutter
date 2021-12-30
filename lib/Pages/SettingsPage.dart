@@ -3,6 +3,7 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:permission_handler/permission_handler.dart' as PermissionHandler;
 import 'package:provider/provider.dart';
@@ -12,14 +13,13 @@ import 'package:sally_prayer_times/Classes/SliderWidget.dart';
 import 'package:sally_prayer_times/Providers/SettingsProvider.dart';
 import 'package:sally_prayer_times/Providers/ThemeProvider.dart';
 import 'package:sally_prayer_times/main.dart';
-import 'package:settings_ui/settings_ui.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as Geocoder;
 import 'package:sally_prayer_times/Classes/PreferenceUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget{
-  SettingsPage({Key key}) : super(key: key);
+  SettingsPage({Key? key}) : super(key: key);
   @override
   _SettingsPage createState() => _SettingsPage();
 }
@@ -53,7 +53,7 @@ class _SettingsPage extends State<SettingsPage>{
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    LocationData _locationData;
+    LocationData? _locationData;
 
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
@@ -78,7 +78,7 @@ class _SettingsPage extends State<SettingsPage>{
     _locationData = await location.getLocation().timeout(Duration(seconds: 10),onTimeout: (){
       showSnackBar(translate('try_moving_your_phone'));
       EasyLoading.dismiss(animation: true);
-      return;
+      return _locationData!;
     });
 
     if(_locationData == null){
@@ -94,14 +94,14 @@ class _SettingsPage extends State<SettingsPage>{
     Provider.of<SettingsProvider>(context, listen: false).LocationLongLat = {'longitude': _locationData.longitude.toString(), 'latitude': _locationData.latitude.toString()};
 
     try{
-      var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude, _locationData.longitude);
-      Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country;
-      Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality + ' ('+placemarks.first.street+')';
+      var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude!, _locationData.longitude!);
+      Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+      Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
     }catch(e){
       try{
-        var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude, _locationData.longitude);
-        Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country;
-        Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality + ' ('+placemarks.first.street+')';
+        var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude!, _locationData.longitude!);
+        Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+        Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
       }catch(e){
         Provider.of<SettingsProvider>(context, listen: false).country = _locationData.longitude.toString();
         Provider.of<SettingsProvider>(context, listen: false).city = _locationData.latitude.toString();
@@ -235,7 +235,7 @@ class _SettingsPage extends State<SettingsPage>{
         });
     if(value != null){
       try{
-        int hijriAdjustment = value.toInt();
+        int? hijriAdjustment = value.toInt();
         Provider.of<SettingsProvider>(context, listen: false).hijriAdjustment = hijriAdjustment.toString();
         showSnackBar(translate('saved_successfully') +' : '+ translate('Hijri_Time_Adjustment'));
       }catch(e){
@@ -319,7 +319,7 @@ class _SettingsPage extends State<SettingsPage>{
         });
     if(value != null){
       try{
-        int timeAdjustment = value.toInt();
+        int? timeAdjustment = value.toInt();
         switch(prayerNumber){
           case 1: {Provider.of<SettingsProvider>(context, listen: false).fajrTimeAdjustment = timeAdjustment.toString();} break;
           case 2: {Provider.of<SettingsProvider>(context, listen: false).shoroukTimeAdjustment = timeAdjustment.toString();} break;
@@ -620,6 +620,7 @@ class _SettingsPage extends State<SettingsPage>{
       case Configuration.frenchKey: return Configuration.frenchNameKey; break;
       case Configuration.italianoKey: return Configuration.italianoNameKey; break;
       case Configuration.arabicKey: return Configuration.arabicNameKey; break;
+      default: return Configuration.englisNamehKey; break;
     }
   }
 }

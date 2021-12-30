@@ -1,5 +1,4 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:fancy_bottom_navigation/fancy_bottom_navigation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,6 +12,7 @@ import 'package:introduction_screen/introduction_screen.dart';
 import 'package:permission_handler/permission_handler.dart' as PermissionHandler;
 import 'package:geocoding/geocoding.dart' as Geocoder;
 import 'package:location/location.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:sally_prayer_times/Classes/Configuration.dart';
 import 'package:sally_prayer_times/Pages/PrayersPage.dart';
@@ -37,14 +37,14 @@ void main() async{
 
   runApp(LocalizedApp(delegate, MyApp(savedThemeMode: savedThemeMode)));
 
-  await AthanServiceManager.startService();
+  AthanServiceManager.startService();
 }
 
 class MyApp extends StatelessWidget {
 
-  final AdaptiveThemeMode savedThemeMode;
+  final AdaptiveThemeMode? savedThemeMode;
 
-  const MyApp({Key key, this.savedThemeMode}) : super(key: key);
+  const MyApp({Key? key, this.savedThemeMode}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -112,12 +112,12 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   }
 
   List<String> _languages = [
-      Configuration.englisNamehKey,
-      Configuration.frenchNameKey,
-      Configuration.italianoNameKey,
-      Configuration.arabicNameKey,
+    Configuration.englisNamehKey,
+    Configuration.frenchNameKey,
+    Configuration.italianoNameKey,
+    Configuration.arabicNameKey,
   ];
-  String _selectedLanguage = Configuration.englisNamehKey;
+  String? _selectedLanguage = Configuration.englisNamehKey;
   String _languageMessage = '';
   String _batteryOptimizationMessage = '';
   String _locationMessage = '';
@@ -142,7 +142,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     Configuration.TunisianMinistryofReligiousAffairs,
     Configuration.UAEGeneralAuthorityofIslamicAffairsAndEndowments,
   ];
-  String _selectedCalculationMethod = Configuration.MuslimWorldLeagueKey;
+  String? _selectedCalculationMethod = Configuration.MuslimWorldLeagueKey;
   String _calculationMethodMessage = '';
 
   bool isBatteryOptimized = PreferenceUtils.getBool(Configuration.IS_BATTERY_OPTIMIZED, false);
@@ -175,7 +175,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     }
   }
 
-  void languageHandler(String language) async{
+  void languageHandler(String? language) async{
     if(language == Configuration.englisNamehKey){
       Provider.of<SettingsProvider>(context, listen: false).language = Configuration.englishKey; changeLocale(context, Configuration.englishKey).then((value) =>
       {
@@ -201,9 +201,9 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     }
   }
 
-  refreshLanguageMessage(String language){
+  refreshLanguageMessage(String? language){
     setState(() {
-      _languageMessage = translate('saved_successfully') +' : '+ translate(language)+' - '+translate('Language');
+      _languageMessage = translate('saved_successfully') +' : '+ translate(language!)+' - '+translate('Language');
     });
   }
 
@@ -214,7 +214,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    LocationData _locationData;
+    LocationData? _locationData;
 
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
@@ -245,7 +245,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
         _locationMessage = translate('try_moving_your_phone');
       });
       EasyLoading.dismiss(animation: true);
-      return;
+      return _locationData!;
     });
 
     if(_locationData == null){
@@ -263,14 +263,14 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     Provider.of<SettingsProvider>(context, listen: false).LocationLongLat = {'longitude': _locationData.longitude.toString(), 'latitude': _locationData.latitude.toString()};
 
     try{
-      var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude, _locationData.longitude);
-      Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country;
-      Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality + ' ('+placemarks.first.street+')';
+      var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude!, _locationData.longitude!);
+      Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+      Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
     }catch(e){
       try{
-        var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude, _locationData.longitude);
-        Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country;
-        Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality + ' ('+placemarks.first.street+')';
+        var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude!, _locationData.longitude!);
+        Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+        Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
       }catch(e){
         Provider.of<SettingsProvider>(context, listen: false).country = _locationData.longitude.toString();
         Provider.of<SettingsProvider>(context, listen: false).city = _locationData.latitude.toString();
@@ -299,7 +299,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     );
   }
 
-  void calculationMethodHandler(String calculationMethod){
+  void calculationMethodHandler(String? calculationMethod){
     if(calculationMethod == Configuration.UmmAlQuraUnivKey){
       Provider.of<SettingsProvider>(context, listen: false).calculationMethod = Configuration.UmmAlQuraUnivKey;
     }else if(calculationMethod == Configuration.EgytionGeneralAuthorityofSurveyKey){
@@ -341,7 +341,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     }
 
     setState(() {
-      _calculationMethodMessage = translate('saved_successfully') +' : '+ translate('calculation_method')+' - '+translate(calculationMethod);
+      _calculationMethodMessage = translate('saved_successfully') +' : '+ translate('calculation_method')+' - '+translate(calculationMethod!);
     });
   }
 
@@ -525,15 +525,15 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                     value: _selectedCalculationMethod,
                     items: _calculationMethods.map((String val) {
                       return new DropdownMenuItem<String>(
-                        value: val,
-                        child: Container(
-                          width:double.infinity,
-                          alignment:Alignment.centerLeft,
-                          child:Text(translate(val)),
-                          decoration:BoxDecoration(
-                              border:Border(bottom:BorderSide(color:Colors.grey,width:1))
-                          ),
-                        )
+                          value: val,
+                          child: Container(
+                            width:double.infinity,
+                            alignment:Alignment.centerLeft,
+                            child:Text(translate(val)),
+                            decoration:BoxDecoration(
+                                border:Border(bottom:BorderSide(color:Colors.grey,width:1))
+                            ),
+                          )
                       );
                     }).toList(),
                     hint: Text(translate('Please_choose_a_calculation_method'),overflow: TextOverflow.ellipsis,maxLines: 2,),
@@ -586,7 +586,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -594,69 +594,89 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  int currentPage = 0;
-  GlobalKey bottomNavigationKey = GlobalKey();
+  PersistentTabController? _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PersistentTabController(initialIndex: 0);
+  }
+
+  @override
+  void dispose() {
+    _controller!.dispose();
+    super.dispose();
+  }
+
+
+  List<Widget> _buildScreens() {
+    return [
+      PrayersPage(),
+      QiblaPage(),
+      SettingsPage(),
+      InfoPage(),
+    ];
+  }
+
+  List<PersistentBottomNavBarItem> _navBarsItems() {
+    return [
+      PersistentBottomNavBarItem(
+        icon: Icon(FontAwesome5.pray),
+        title: translate('prayers'),
+        activeColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+        inactiveColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Typicons.compass),
+        title: translate('qibla'),
+        activeColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+        inactiveColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.settings),
+        title: translate('settings'),
+        activeColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+        inactiveColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.info),
+        title: translate('info'),
+        activeColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+        inactiveColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(color: Colors.white),
-        child: Center(
-          child: _getPage(currentPage),
-        ),
+    return PersistentTabView(
+      context,
+      controller: _controller,
+      screens: _buildScreens(),
+      items: _navBarsItems(),
+      confineInSafeArea: true,
+      backgroundColor: Colors.white, // Default is Colors.white.
+      handleAndroidBackButtonPress: true, // Default is true.
+      resizeToAvoidBottomInset: true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
+      stateManagement: true, // Default is true.
+      hideNavigationBarWhenKeyboardShows: true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
+      decoration: NavBarDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        colorBehindNavBar: Colors.white,
       ),
-      bottomNavigationBar: Directionality(
-        textDirection: TextDirection.ltr,
-        child: FancyBottomNavigation(
-            circleColor: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
-            inactiveIconColor: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
-            tabs: [
-            TabData(
-                iconData: FontAwesome5.pray,
-                title: translate('prayers'),
-                onclick: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => PrayersPage()))),
-            TabData(
-                iconData: Typicons.compass,
-                title: translate('qibla'),
-                onclick: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => QiblaPage()))),
-            TabData(
-                iconData: Icons.settings,
-                title: translate('settings'),
-                onclick: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => SettingsPage()))),
-            TabData(
-                iconData: Icons.info,
-                title: translate('info'),
-                onclick: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => InfoPage()))),
-          ],
-          initialSelection: 0,
-          key: bottomNavigationKey,
-          onTabChangedListener: (position) {
-            setState(() {
-              currentPage = position;
-            });
-          },
-        ),
-      ),// This trailing comma makes auto-formatting nicer for build methods.
+      popAllScreensOnTapOfSelectedTab: true,
+      popActionScreens: PopActionScreensType.all,
+      itemAnimationProperties: ItemAnimationProperties( // Navigation Bar's items animation properties.
+        duration: Duration(milliseconds: 200),
+        curve: Curves.ease,
+      ),
+      screenTransitionAnimation: ScreenTransitionAnimation( // Screen transition animation on change of selected tab.
+        animateTabTransition: true,
+        curve: Curves.ease,
+        duration: Duration(milliseconds: 200),
+      ),
+      navBarStyle: NavBarStyle.style1, // Choose the nav bar style with this property.
     );
   }
 
-  _getPage(int page) {
-    switch (page) {
-      case 0:
-        return PrayersPage();
-      case 1:
-        return QiblaPage();
-      case 2:
-        return SettingsPage();
-      case 3:
-        return InfoPage();
-    default:
-        return PrayersPage();
-    }
-  }
 }

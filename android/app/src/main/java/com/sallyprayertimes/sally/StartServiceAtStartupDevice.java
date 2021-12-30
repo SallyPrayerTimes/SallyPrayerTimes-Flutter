@@ -5,6 +5,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+
+import androidx.core.content.ContextCompat;
 
 import com.sallyprayertimes.widget.SmallWidgetProvider;
 import com.sallyprayertimes.widget.SmallWidgetProviderService;
@@ -35,7 +38,12 @@ public class StartServiceAtStartupDevice extends BroadcastReceiver{
             AthanServiceBroasdcastReceiver.startNextPrayer(context);
 
             if(SmallWidgetProvider.isEnabled){
-                context.startService(new Intent(context, SmallWidgetProviderService.class));
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    ContextCompat.startForegroundService(context,new Intent(context, SmallWidgetProviderService.class));
+                }
+                else {
+                    context.startService(new Intent(context, SmallWidgetProviderService.class));
+                }
             }
         }
     }

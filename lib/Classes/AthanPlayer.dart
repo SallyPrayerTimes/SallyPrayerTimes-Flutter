@@ -9,7 +9,7 @@ import 'package:sally_prayer_times/Providers/ThemeProvider.dart';
 class AthanPlayer extends StatefulWidget {
   String title;
   List<DropdownMenuItem<String>> items;
-  AthanPlayer({@required this.title, @required this.items});
+  AthanPlayer({required this.title, required this.items});
   @override
   _AthanPlayer createState() => _AthanPlayer(title: this.title, items: this.items);
 }
@@ -17,10 +17,10 @@ class AthanPlayer extends StatefulWidget {
 class _AthanPlayer extends State<AthanPlayer> {
   String title;
   List<DropdownMenuItem<String>> items;
-  _AthanPlayer({@required this.title, @required this.items});
+  _AthanPlayer({required this.title, required this.items});
 
   final assetsAudioPlayer = AssetsAudioPlayer();
-  String selectedValue = translate('ali_ben_ahmed_mala');
+  String? selectedValue = translate('ali_ben_ahmed_mala');
 
   void playAthan(){
     if(selectedValue == translate('abd_el_basset_abd_essamad')){
@@ -58,7 +58,7 @@ class _AthanPlayer extends State<AthanPlayer> {
           child: DropdownButton<String>(
             value: selectedValue,
             items: items,
-            onChanged: (String value) {setState(() {
+            onChanged: (String? value) {setState(() {
               selectedValue = value;
             });},
           ),

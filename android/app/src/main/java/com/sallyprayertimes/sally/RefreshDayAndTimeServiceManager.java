@@ -17,12 +17,14 @@ public class RefreshDayAndTimeServiceManager extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        TimeZone timezone = TimeZone.getDefault();
-        int offsetInMillis = timezone.getOffset(System.currentTimeMillis());
-        String offset = String.format("%02d.%02d", Math.abs(offsetInMillis / 3600000), Math.abs((offsetInMillis / 60000) % 60));
-        String timeZoneOffset = (offsetInMillis >= 0 ? "" : "-") + offset;
+        try{
+            TimeZone timezone = TimeZone.getDefault();
+            int offsetInMillis = timezone.getOffset(System.currentTimeMillis());
+            String offset = String.format("%02d.%02d", Math.abs(offsetInMillis / 3600000), Math.abs((offsetInMillis / 60000) % 60));
+            String timeZoneOffset = (offsetInMillis >= 0 ? "" : "-") + offset;
 
-        PreferenceHandler.getSingleton().setValue(PreferenceHandler.PRAYER_TIMES_TIMEZONE, timeZoneOffset);
+            PreferenceHandler.getSingleton().setValue(PreferenceHandler.PRAYER_TIMES_TIMEZONE, timeZoneOffset);
+        }catch(Exception ex){}
 
         PreferenceHandler.getSingleton().setContext(context);
         PrayersTimes.getSingleton().init(context);

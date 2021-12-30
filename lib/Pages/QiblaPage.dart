@@ -13,7 +13,7 @@ import 'package:geocoding/geocoding.dart' as Geocoder;
 import 'package:location/location.dart';
 
 class QiblaPage extends StatefulWidget{
-  QiblaPage({Key key}) : super(key: key);
+  QiblaPage({Key? key}) : super(key: key);
   @override
   _QiblaPage createState() => _QiblaPage();
 }
@@ -63,7 +63,7 @@ class _QiblaPage extends State<QiblaPage>{
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
-    LocationData _locationData;
+    LocationData? _locationData;
 
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
@@ -94,36 +94,40 @@ class _QiblaPage extends State<QiblaPage>{
         _qiblaErrorMessage = translate('try_moving_your_phone');
       });
       EasyLoading.dismiss(animation: true);
+      return _locationData!;
+    });
+
+    if(_locationData == null){
       return;
-    });
+    }else{
+      Provider.of<SettingsProvider>(context, listen: false).longitude = _locationData.longitude.toString();
+      Provider.of<SettingsProvider>(context, listen: false).latitude = _locationData.latitude.toString();
 
-    Provider.of<SettingsProvider>(context, listen: false).longitude = _locationData.longitude.toString();
-    Provider.of<SettingsProvider>(context, listen: false).latitude = _locationData.latitude.toString();
+      //Provider.of<SettingsProvider>(context, listen: false).LocationLongLat.clear();
+      //Provider.of<SettingsProvider>(context, listen: false).LocationLongLat = {'longitude': _locationData.longitude.toString(), 'latitude': _locationData.latitude.toString()};
 
-    //Provider.of<SettingsProvider>(context, listen: false).LocationLongLat.clear();
-    //Provider.of<SettingsProvider>(context, listen: false).LocationLongLat = {'longitude': _locationData.longitude.toString(), 'latitude': _locationData.latitude.toString()};
-
-    try{
-      var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude, _locationData.longitude);
-      Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country;
-      Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality + ' ('+placemarks.first.street+')';
-    }catch(e){
       try{
-        var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude, _locationData.longitude);
-        Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country;
-        Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality + ' ('+placemarks.first.street+')';
+        var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude!, _locationData.longitude!);
+        Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+        Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
       }catch(e){
-        Provider.of<SettingsProvider>(context, listen: false).country = _locationData.longitude.toString();
-        Provider.of<SettingsProvider>(context, listen: false).city = _locationData.latitude.toString();
+        try{
+          var placemarks = await Geocoder.placemarkFromCoordinates(_locationData.latitude!, _locationData.longitude!);
+          Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+          Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
+        }catch(e){
+          Provider.of<SettingsProvider>(context, listen: false).country = _locationData.longitude.toString();
+          Provider.of<SettingsProvider>(context, listen: false).city = _locationData.latitude.toString();
+        }
       }
-    }
 
-    EasyLoading.dismiss(animation: true);
-    setState(() {
-      _qiblaErrorMessage = '';
-      _qiblaDirection = QiblaDirectionCalculator.getQiblaDirectionFromNorth(_locationData.longitude, _locationData.latitude);
-      _qiblaInfoMessage = translate('Location')+' : ' + Provider.of<SettingsProvider>(context, listen: false).country +' / '+ Provider.of<SettingsProvider>(context, listen: false).city;
-    });
+      EasyLoading.dismiss(animation: true);
+      setState(() {
+        _qiblaErrorMessage = '';
+        _qiblaDirection = QiblaDirectionCalculator.getQiblaDirectionFromNorth(_locationData!.longitude!, _locationData.latitude!);
+        _qiblaInfoMessage = translate('Location')+' : ' + Provider.of<SettingsProvider>(context, listen: false).country +' / '+ Provider.of<SettingsProvider>(context, listen: false).city;
+      });
+    }
   }
 
   void compass_1_handler(){
@@ -307,11 +311,11 @@ class _QiblaPage extends State<QiblaPage>{
         _qiblaDirection = QiblaDirectionCalculator.getQiblaDirectionFromNorth(double.parse(SettingsProvider().longitude), double.parse(SettingsProvider().latitude));
         _qiblaInfoMessage = translate('Location')+' : '+ SettingsProvider().country +' / '+ SettingsProvider().city;
 
-        double direction = 0;
+        double? direction = 0;
         double finalQiblaDirection = 0;
         try{
-          direction = snapshot.data.heading;
-          finalQiblaDirection = direction + (360 - _qiblaDirection);
+          direction = snapshot.data!.heading;
+          finalQiblaDirection = direction! + (360 - _qiblaDirection);
           _qiblaErrorMessage = '';
         }catch(e){
           _qiblaErrorMessage = translate('Error')+': '+e.toString();
@@ -331,7 +335,7 @@ class _QiblaPage extends State<QiblaPage>{
               width: 250,
               height: 250,
               child: Transform.rotate(
-                angle: (direction * (math.pi / 180) * -1),
+                angle: (direction! * (math.pi / 180) * -1),
                 child: _compassImage,
               ),
             ),
