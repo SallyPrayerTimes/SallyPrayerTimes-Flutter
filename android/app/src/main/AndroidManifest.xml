@@ -2,8 +2,8 @@
     package="com.sallyprayertimes"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -15,6 +15,7 @@
         android:label="Sally"
         android:icon="@mipmap/launcher_icon">
         <activity
+            android:exported="true"
             android:name="com.sallyprayertimes.MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
@@ -56,9 +57,9 @@
            android:permission="android.premssion.BIND_JOb_SERVICE">
        </service>
 
-       <receiver android:name="com.sallyprayertimes.sally.AthanServiceBroasdcastReceiver" android:exported="false" />
+       <receiver android:name="com.sallyprayertimes.sally.AthanServiceBroasdcastReceiver" android:exported="true" />
 
-       <receiver android:name="com.sallyprayertimes.sally.RefreshDayAndTimeServiceManager">
+       <receiver android:name="com.sallyprayertimes.sally.RefreshDayAndTimeServiceManager" android:exported="true">
            <intent-filter>
                <action android:name="android.intent.action.TIME_SET" />
                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
@@ -83,6 +84,7 @@
        </service>
 
        <receiver android:name="com.sallyprayertimes.widget.SmallWidgetProvider"
+           android:exported="true"
            android:icon="@drawable/small_widget"
            android:label="Sally Prayer Times">
            <intent-filter>
@@ -93,9 +95,9 @@
                android:resource="@xml/small_widget_provider" />
        </receiver>
 
-       <receiver android:name="com.sallyprayertimes.widget.SmallWidgetProviderBroadcastReceiver"/>
+       <receiver android:name="com.sallyprayertimes.widget.SmallWidgetProviderBroadcastReceiver" android:exported="true"/>
 
-       <receiver android:name="com.sallyprayertimes.sally.RefreshWidgetAfter15Minutes" android:exported="false" />
+       <receiver android:name="com.sallyprayertimes.sally.RefreshWidgetAfter15Minutes" android:exported="true" />
 
     </application>
 </manifest>

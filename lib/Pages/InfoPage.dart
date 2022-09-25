@@ -26,7 +26,7 @@ class _InfoPage extends State<InfoPage>{
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 20, bottom: 0, right: 10, left: 10),
-                      child: Text(translate('Version')+': 30.12.21(32)', style: TextStyle(fontSize: 18, color: appBarColor,),maxLines: 50,),
+                      child: Text(translate('Version')+': 31.3.22(35)', style: TextStyle(fontSize: 18, color: appBarColor,),maxLines: 50,),
                     ),
                   ),
                 ),

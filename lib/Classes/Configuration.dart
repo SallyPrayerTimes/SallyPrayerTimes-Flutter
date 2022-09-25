@@ -43,6 +43,7 @@ class Configuration{
   static const String PRAYER_TIMES_MAGHRIB_TIME_ADJUSTMENT = 'PRAYER_TIMES_MAGHRIB_TIME_ADJUSTMENT';
   static const String PRAYER_TIMES_ISHAA_TIME_ADJUSTMENT = 'PRAYER_TIMES_ISHAA_TIME_ADJUSTMENT';
   static const String PRAYER_TIMES_ATHAN = 'PRAYER_TIMES_ATHAN';
+  static const String CALENDAR_TYPE = 'CALENDAR_TYPE';
 
   static const String PRAYER_TIMES_COMPASS_NUMBER = 'PRAYER_TIMES_COMPASS_NUMBER';
 
@@ -104,5 +105,8 @@ class Configuration{
   static const String englisNamehKey = 'english';
   static const String italianoNameKey = 'italiano';
   static const String frenchNameKey = 'french';
+
+  static const String CALENDAR_TYPE_HIJRI = 'hijri';
+  static const String CALENDAR_TYPE_MILADI = 'miladi';
 
 }

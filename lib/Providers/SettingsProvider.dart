@@ -128,6 +128,16 @@ class SettingsProvider with ChangeNotifier {
     AthanServiceManager.startService();
   }
 
+  String _calendarType = PreferenceUtils.getString(Configuration.CALENDAR_TYPE, Configuration.CALENDAR_TYPE_MILADI);
+  String get calendarType{
+    return _calendarType;
+  }
+  set calendarType(String value) {
+    PreferenceUtils.setString(Configuration.CALENDAR_TYPE, value);
+    _calendarType = value;
+    notifyListeners();
+  }
+
   String _madhab = PreferenceUtils.getString(Configuration.PRAYER_TIMES_MADHAB, Configuration.shafiiKey);
   String get madhab{
     return _madhab;
@@ -224,7 +234,7 @@ class SettingsProvider with ChangeNotifier {
     PreferenceUtils.setString(Configuration.PRAYER_TIMES_LANGUAGE, value);
     _language = value;
     notifyListeners();
-    AthanServiceManager.startService();
+    AthanServiceManager.refreshWidget();
   }
 
   String _time12_24 = PreferenceUtils.getString(Configuration.PRAYER_TIMES_TIME_12_24, Configuration.time12or24_24);
@@ -235,7 +245,8 @@ class SettingsProvider with ChangeNotifier {
     PreferenceUtils.setString(Configuration.PRAYER_TIMES_TIME_12_24, value);
     _time12_24= value;
     notifyListeners();
-    AthanServiceManager.startService();
+    AthanServiceManager.getPrayerTimes();
+    AthanServiceManager.refreshWidget();
   }
 
   String _athan = PreferenceUtils.getString(Configuration.PRAYER_TIMES_ATHAN, Configuration.ali_ben_ahmed_mala_key);

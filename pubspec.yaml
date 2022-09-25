@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 30.12.21+32
+version: 25.9.22+42
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
@@ -23,28 +23,34 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  persistent_bottom_nav_bar: ^4.0.2
+  persistent_bottom_nav_bar: ^5.0.2
   fluttericon: ^2.0.0
   provider: ^6.0.1
   shared_preferences: ^2.0.8
   flutter_settings_ui: ^2.0.1
-  flutter_colorpicker: ^0.6.0
+  flutter_colorpicker: ^1.0.3
+  geolocator: ^9.0.0
   location: ^4.3.0
   flutter_easyloading: ^3.0.3
   adaptive_dialog: ^1.2.0
   geocoding: ^2.0.1
-  assets_audio_player: ^3.0.3+6
+  assets_audio_player: ^3.0.5
   path_provider: ^2.0.6
-  permission_handler: ^8.2.6
+  permission_handler: ^10.0.0
   url_launcher: ^6.0.12
   hijri: ^3.0.0
   intl: ^0.17.0
-  introduction_screen: ^2.1.0
+  introduction_screen: ^3.0.2
   flutter_compass: ^0.7.0
-  flutter_translate: ^3.0.1
+  flutter_translate: ^4.0.3
   flutter_localizations:
     sdk: flutter
-  adaptive_theme: ^2.3.0
+  adaptive_theme: ^3.1.0
+  month_year_picker: ^0.2.0+1
+  huawei_hmsavailability: ^6.4.0+303
+  screenshot: ^1.2.3
+  share_plus: ^4.0.3
+  google_api_availability: ^3.0.1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -79,6 +85,10 @@ flutter:
     - assets/kibla/compass_2.png
     - assets/kibla/needle_3.png
     - assets/kibla/compass_3.png
+    - assets/flags/france_flag.png
+    - assets/flags/italy_flag.png
+    - assets/flags/saudia_flag.png
+    - assets/flags/usa_flag.png
     - assets/icons/icon.png
     - assets/appbar/islamic_mosque.png
     - assets/athan/abd_el_basset_abd_essamad.mp3

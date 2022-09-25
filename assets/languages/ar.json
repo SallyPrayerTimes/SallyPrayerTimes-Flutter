@@ -160,5 +160,11 @@
   "Calculating_Asr_Time": "حساب وقت العصر",
   "Angle_Based_Method": "الطريقة القائمة على الزاوية",
   "Fajr_angle": "زاوية الفجر",
-  "Ishaa_angle": "زاوية العشاء"
+  "Ishaa_angle": "زاوية العشاء",
+  "calendar": "التقويم",
+  "miladi": "ميلادي",
+  "hijri": "هجري",
+  "calendar_type" : "نوع التقويم",
+  "select_date" : "اختيار تاريخ",
+  "select_near_method_location": "الرجاء تحديد الطريقة الأقرب لموقعك"
 }

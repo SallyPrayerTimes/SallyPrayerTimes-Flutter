@@ -51,6 +51,23 @@ class HijriTime{
     _hijriMonth = value;
   }
 
+  String? getHijriMonthFromValue(int monthNUmber){
+    switch(monthNUmber){
+      case 1: {return translate('Muharram');}
+      case 2: {return translate('Safar');}
+      case 3: {return translate('Rabi_Al_Awwal');}
+      case 4: {return translate('Rabi_Al_Thani');}
+      case 5: {return translate('Jumada_Al_Awwal');}
+      case 6: {return translate('Jumada_Al_Thani');}
+      case 7: {return translate('Rajab');}
+      case 8: {return translate('Sha_aban');}
+      case 9: {return translate('Ramadan');}
+      case 10: {return translate('Shawwal');}
+      case 11: {return translate('Dhu_Al_Qi_dah');}
+      case 12: {return translate('Dhu_Al_Hijjah');}
+    }
+  }
+
   int? _hijriYear;
   int? get hijriYear{
     _hijriYear = hijriCalendar.hYear;
@@ -101,6 +118,40 @@ class MiladiTime{
   }
   set miladiMonth(String? value) {
     _miladiMonth = value;
+  }
+
+  String? getMiladiMonthFromValue(int monthNumber){
+    switch(monthNumber){
+      case 1: {return translate('January');}
+      case 2: {return translate('February');}
+      case 3: {return translate('March');}
+      case 4: {return translate('April');}
+      case 5: {return translate('May');}
+      case 6: {return translate('June');}
+      case 7: {return translate('July');}
+      case 8: {return translate('August');}
+      case 9: {return translate('September');}
+      case 10: {return translate('October');}
+      case 11: {return translate('November');}
+      case 12: {return translate('December');}
+    }
+  }
+
+  String? getMiladiMonthAbbreviations(int monthNumber){
+    switch(monthNumber){
+      case 1: {return 'Jan';}
+      case 2: {return 'Feb';}
+      case 3: {return 'Mar';}
+      case 4: {return 'Apr';}
+      case 5: {return 'May';}
+      case 6: {return 'Jun';}
+      case 7: {return 'Jul';}
+      case 8: {return 'Aug';}
+      case 9: {return 'Sept';}
+      case 10: {return 'Oct';}
+      case 11: {return 'Nov';}
+      case 12: {return 'Dec';}
+    }
   }
 }
 

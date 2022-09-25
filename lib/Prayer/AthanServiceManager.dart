@@ -21,7 +21,11 @@ class AthanServiceManager{
     getPrayerTimes();
   }
 
-  static Future<List<dynamic>> getPrayerTimes() async{
+  static refreshWidget() async{
+    await methodChannel.invokeMethod("refreshWidget");
+  }
+
+  static getPrayerTimes() async{
     List<dynamic>? data = await methodChannel.invokeMethod("getPrayersTimes");
     PrayersProvider().nextPrayerTimeCode = int.parse(data![0]);
     PrayersProvider().fajrTimeInMinutes = int.parse(data[1]);
@@ -52,7 +56,6 @@ class AthanServiceManager{
       case 4: {PrayersProvider().nextPrayerTime = PrayersProvider().maghribTime;PrayersProvider().nextPrayerName = translate('maghrib');} break;
       case 5: {PrayersProvider().nextPrayerTime = PrayersProvider().ishaaTime;PrayersProvider().nextPrayerName = translate('ishaa');} break;
     }
-    return data;
   }
 
   static String getFinaleSalatTime(int salatTime)

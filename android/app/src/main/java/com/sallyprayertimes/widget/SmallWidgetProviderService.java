@@ -110,11 +110,11 @@ public class SmallWidgetProviderService extends Service {
         remoteViews.setInt(R.id.ishaa_label, "setTextColor", android.graphics.Color.WHITE);
         remoteViews.setInt(R.id.ishaa_time, "setTextColor", android.graphics.Color.WHITE);
 
-        String nextPrayerColorString = String.valueOf(PreferenceHandler.getSingleton().getValue(PreferenceHandler.WIDGET_BACKGROUND_COLOR, "255:13:67:13"));
+        String nextPrayerColorString = String.valueOf(PreferenceHandler.getSingleton().getValue(PreferenceHandler.WIDGET_BACKGROUND_COLOR, "255:0:64:255"));
         String[] myColor = nextPrayerColorString.split(":");
         int backgroundColor = Color.argb(Integer.valueOf(myColor[0]),Integer.valueOf(myColor[1]),Integer.valueOf(myColor[2]),Integer.valueOf(myColor[3]));
 
-        remoteViews.setInt(R.id.small_widget_background_color, "setBackgroundColor", backgroundColor);
+        remoteViews.setInt(R.id.widget_background, "setColorFilter", backgroundColor);
 
         remoteViews.setInt(R.id.fajrLinearLayout, "setBackgroundColor", Color.TRANSPARENT);
         remoteViews.setInt(R.id.duhrLinearLayout, "setBackgroundColor", Color.TRANSPARENT);

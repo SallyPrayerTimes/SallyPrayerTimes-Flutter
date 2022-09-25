@@ -1,6 +1,7 @@
 package com.sallyprayertimes.sally;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.text.NumberFormat;
@@ -94,15 +95,14 @@ public class PrayersTimes {
         }
 
         double st = removeDublication(100.46 + 0.985647352 * julianDay);
-
         this.dec = RadToDeg * Math.asin(Math.sin(obliquity * DegToRad) * Math.sin(lambda * DegToRad));
 
         double noon = alpha - st;
         if (noon < 0) {
             noon += 360;
         }
-        double UTNoon = noon - longitude;
 
+        double UTNoon = noon - longitude;
         double localNoon = (UTNoon / 15) + timezone;
 
         double duhr = localNoon;
@@ -229,14 +229,15 @@ public class PrayersTimes {
         this.allPrayrTimesInMinutes[4] = (int) (getMinutes(maghrib) + maghribTimeAdjustment);
         this.allPrayrTimesInMinutes[5] = (int) (getMinutes(ishaa) + ishaaTimeAdjustment);
 
-        boolean b = true;
-
         for (int i = 0; i < allPrayrTimesInMinutes.length; i++) {
-            if (allPrayrTimesInMinutes[i] > 1440) {
-                for (int j = 0; j < allPrayrTimesInMinutes.length; j++) {
-                    allPrayrTimesInMinutes[j] -= 720;
+            if(i == 0 || i == 1){
+                while(allPrayrTimesInMinutes[i] > 720){
+                    allPrayrTimesInMinutes[i] -= 720;
                 }
-                break;
+            }else{
+                while(allPrayrTimesInMinutes[i] > 1440){
+                    allPrayrTimesInMinutes[i] -= 720;
+                }
             }
         }
 

@@ -1,9 +1,17 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
 android:id="@+id/small_widget"
 android:layout_width="fill_parent"
 android:layout_height="match_parent"
 android:baselineAligned="false"
 android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/widget_background"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/widget_background_image"
+        />
 
     <LinearLayout
         android:id="@+id/small_widget_background_color"
@@ -16,8 +24,7 @@ android:orientation="vertical" >
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:background="@drawable/blue_background">
+        android:paddingBottom="5dp">
 
         <RelativeLayout
             android:id="@+id/fajrLinearLayout"
@@ -171,4 +178,4 @@ android:orientation="vertical" >
 
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

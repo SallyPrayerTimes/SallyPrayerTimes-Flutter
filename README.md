@@ -1,17 +1,16 @@
-Sally Prayer Times For Android With Flutter
+# sally_prayer_times
 
-Google Play Store: https://play.google.com/store/apps/details?id=com.sallyprayertimes
+Sally Prayer Times
 
-Huawei AppGallery : https://appgallery.huawei.com/app/C105852393
+## Getting Started
 
-Donate: http://paypal.me/bibali1980
+This project is a starting point for a Flutter application.
 
-Sally Prayer Times is a free and open source application to calculate Islamic prayer times for most of the world, You please report any error in the work program, or assist in the development and thank you very much
+A few resources to get you started if this is your first Flutter project:
 
-http://sallyprayertimes.com/
+- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-
-
-Sally is a free and open source, and everyone has the right use and publication.
-
-صَلِّ هو برنامج مجاني و مفتوح المصدر لحساب اوقات الصلاة الاسلامية لمعظم دول العالم , المرجو منكم الابلاغ عن اي خطا في عمل البرنامج او المساعدة في تطويره
+For help getting started with Flutter, view our
+[online documentation](https://flutter.dev/docs), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.

@@ -5,6 +5,8 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_settings_ui/flutter_settings_ui.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:fluttericon/font_awesome_icons.dart';
+import 'package:huawei_hmsavailability/huawei_hmsavailability.dart';
 import 'package:permission_handler/permission_handler.dart' as PermissionHandler;
 import 'package:provider/provider.dart';
 import 'package:sally_prayer_times/Classes/AthanPlayer.dart';
@@ -17,6 +19,9 @@ import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as Geocoder;
 import 'package:sally_prayer_times/Classes/PreferenceUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart' as geolocator;
+import 'package:google_api_availability/google_api_availability.dart';
+import '../Huawei/HuaweiHelper.dart';
 
 class SettingsPage extends StatefulWidget{
   SettingsPage({Key? key}) : super(key: key);
@@ -47,6 +52,98 @@ class _SettingsPage extends State<SettingsPage>{
   }
 
   void locationHandler() async{
+    if(HuaweiHelper.isHmsAviable){
+      GooglePlayServicesAvailability googlePlayServicesAvailability = await GoogleApiAvailability.instance.checkGooglePlayServicesAvailability();
+      if(googlePlayServicesAvailability == GooglePlayServicesAvailability.success){
+        locationHandlerGoogle();
+      }else{
+        locationHandlerHuawei();
+      }
+    }else{
+      locationHandlerGoogle();
+    }
+  }
+
+  void locationHandlerHuawei() async{
+    try {
+      EasyLoading.show(status: translate('loading'));
+
+      bool serviceEnabled;
+      geolocator.LocationPermission permission;
+      serviceEnabled = await geolocator.Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          showSnackBar(translate('please_enable_GPS_location'));
+        });
+        EasyLoading.dismiss(animation: true);
+        return;
+      }
+
+      permission = await geolocator.Geolocator.checkPermission();
+      if (permission == geolocator.LocationPermission.denied) {
+        permission = await geolocator.Geolocator.requestPermission();
+        if (permission == geolocator.LocationPermission.denied || permission == geolocator.LocationPermission.deniedForever) {
+          setState(() {
+            showSnackBar(translate('please_allow_the_app_to_get_your_location'));
+          });
+          EasyLoading.dismiss(animation: true);
+          return;
+        }
+      }
+
+      geolocator.Position? position =  await geolocator.Geolocator.getCurrentPosition(
+        timeLimit: Duration(seconds: 10),
+        forceAndroidLocationManager: true,
+        desiredAccuracy: geolocator.LocationAccuracy.medium,
+      );
+
+      if(position == null || position.longitude == 0 || position.latitude == 0){
+        setState(() {
+          showSnackBar(translate('try_moving_your_phone'));
+        });
+        EasyLoading.dismiss(animation: true);
+        return;
+      }
+
+      Provider.of<SettingsProvider>(context, listen: false).longitude = position.longitude.toString();
+      Provider.of<SettingsProvider>(context, listen: false).latitude = position.latitude.toString();
+
+      Provider.of<SettingsProvider>(context, listen: false).LocationLongLat.clear();
+      Provider.of<SettingsProvider>(context, listen: false).LocationLongLat = {'longitude': position.longitude.toString(), 'latitude': position.latitude.toString()};
+
+      try{
+        var placemarks = await Geocoder.placemarkFromCoordinates(position.latitude, position.longitude);
+        Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+        Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
+      }catch(e){
+        try{
+          var placemarks = await Geocoder.placemarkFromCoordinates(position.latitude, position.longitude);
+          Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+          Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
+        }catch(e){
+          Provider.of<SettingsProvider>(context, listen: false).country = position.longitude.toString();
+          Provider.of<SettingsProvider>(context, listen: false).city = position.latitude.toString();
+        }
+      }
+
+      //calculate timezone
+      try{
+        int offsetInMillis = DateTime.now().timeZoneOffset.inMilliseconds;
+        String offset = (offsetInMillis / 3600000).abs().toInt().toString() +'.'+ ((offsetInMillis / 60000) % 60).abs().toInt().toString();
+        String timeZoneOffset = (offsetInMillis >= 0 ? "" : "-") + offset;
+        double timeZone = double.parse(timeZoneOffset);
+        Provider.of<SettingsProvider>(context, listen: false).timezone = timeZone.toString();
+      }catch(e){}
+
+      EasyLoading.dismiss(animation: true);
+      showSnackBar(translate('location_saved')+': ' + Provider.of<SettingsProvider>(context, listen: false).country +' / '+ Provider.of<SettingsProvider>(context, listen: false).city);
+
+    } catch (e) {
+      EasyLoading.dismiss(animation: true);
+    }
+  }
+
+  void locationHandlerGoogle() async{
     EasyLoading.show(status: translate('loading'));
 
     Location location = new Location();
@@ -338,18 +435,14 @@ class _SettingsPage extends State<SettingsPage>{
   bool isBatteryOptimized = PreferenceUtils.getBool(Configuration.IS_BATTERY_OPTIMIZED, false);
   ignoreBatteryOptimizationsHandler() async{
     if(isBatteryOptimized == false){
-      var status = await PermissionHandler.Permission.ignoreBatteryOptimizations.status;
-      if (status.isGranted == false) {
-        bool isOptimised = await PermissionHandler.Permission.ignoreBatteryOptimizations.request().isGranted;
-        if(isOptimised == true){
-          PreferenceUtils.setBool(Configuration.IS_BATTERY_OPTIMIZED, isOptimised);
-          setState(() {
-            isBatteryOptimized = isOptimised;
-          });
-          showSnackBar(translate('the_app_is_excluded'));
-        }else{
-          showSnackBar(translate('please_allow_the_app_to_be_excluded'));
-        }
+      var request = await PermissionHandler.Permission.ignoreBatteryOptimizations.request();
+      bool isOptimised = await PermissionHandler.Permission.ignoreBatteryOptimizations.status.isGranted;
+      if(isOptimised == true){
+        PreferenceUtils.setBool(Configuration.IS_BATTERY_OPTIMIZED, isOptimised);
+        setState(() {
+          isBatteryOptimized = isOptimised;
+        });
+        showSnackBar(translate('the_app_is_excluded'));
       }else{
         showSnackBar(translate('please_allow_the_app_to_be_excluded'));
       }
@@ -375,6 +468,7 @@ class _SettingsPage extends State<SettingsPage>{
             tiles: [
               SettingsTile(
                 title: translate('Location'),
+                leading: Icon(Icons.location_on_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).country + ' / ' +Provider.of<SettingsProvider>(context, listen: true).city,
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {locationHandler();},
@@ -387,36 +481,42 @@ class _SettingsPage extends State<SettingsPage>{
             tiles: [
               SettingsTile(
                 title: translate('calculation_method'),
+                leading: Icon(Icons.bedtime_rounded,),
                 subtitle: translate(Provider.of<SettingsProvider>(context, listen: true).calculationMethod),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {calculationMethodHandler();},
               ),
               SettingsTile(
                 title: translate('Time_Zone'),
+                leading: Icon(Icons.more_time_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).timezone.toString(),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {timeZoneHandler();},
               ),
               SettingsTile(
                 title: translate('Madhab'),
+                leading: Icon(Icons.book,),
                 subtitle: translate(Provider.of<SettingsProvider>(context, listen: false).madhab),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {madhabHandler();},
               ),
               SettingsTile(
                 title: translate('Time_type'),
+                leading: Icon(Icons.wb_sunny,),
                 subtitle: translate(Provider.of<SettingsProvider>(context, listen: true).typeTime),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {typeTimeHandler();},
               ),
               SettingsTile(
                 title: translate('Hijri_Time_Adjustment'),
+                leading: Icon(Icons.calendar_today,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).hijriAdjustment.toString(),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {hijriTimeAdjustment();},
               ),
               SettingsTile(
                 title: '12h / 24H',
+                leading: Icon(Icons.timelapse_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).time12_24,
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {time12_24Handler();},
@@ -429,6 +529,7 @@ class _SettingsPage extends State<SettingsPage>{
             tiles: [
               SettingsTile(
                 title: translate('athan'),
+                leading: Icon(Icons.surround_sound_outlined,),
                 subtitle: translate(Provider.of<SettingsProvider>(context, listen: true).athan),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {athanHandler();},
@@ -441,6 +542,7 @@ class _SettingsPage extends State<SettingsPage>{
             tiles: [
               SettingsTile(
                 title: translate('Language'),
+                leading: Icon(Icons.language,),
                 subtitle: translate(getLanguage(Provider.of<SettingsProvider>(context, listen: true).language)),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {languageHandler();},
@@ -453,36 +555,42 @@ class _SettingsPage extends State<SettingsPage>{
             tiles: [
               SettingsTile(
                 title: translate('fajr'),
+                leading: Icon(Icons.access_time_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).fajrTimeAdjustment.toString(),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {allTimesAdjustment(translate('fajr'), 1);},
               ),
               SettingsTile(
                 title: translate('shorouk'),
+                leading: Icon(Icons.access_time_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).shoroukTimeAdjustment.toString(),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {allTimesAdjustment(translate('shorouk'), 2);},
               ),
               SettingsTile(
                 title: translate('duhr'),
+                leading: Icon(Icons.access_time_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).duhrTimeAdjustment.toString(),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {allTimesAdjustment(translate('duhr'), 3);},
               ),
               SettingsTile(
                 title: translate('asr'),
+                leading: Icon(Icons.access_time_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).asrTimeAdjustment.toString(),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {allTimesAdjustment(translate('asr'), 4);},
               ),
               SettingsTile(
                 title: translate('maghrib'),
+                leading: Icon(Icons.access_time_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).maghribTimeAdjustment.toString(),
                 subtitleMaxLines: 100,
                 onPressed: (BuildContext context) {allTimesAdjustment(translate('maghrib'), 5);},
               ),
               SettingsTile(
                 title: translate('ishaa'),
+                leading: Icon(Icons.access_time_sharp,),
                 subtitle: Provider.of<SettingsProvider>(context, listen: true).ishaaTimeAdjustment.toString()
                 ,
                 subtitleMaxLines: 100,
@@ -496,6 +604,7 @@ class _SettingsPage extends State<SettingsPage>{
             tiles: [
               SettingsTile.switchTile(
                 title: translate('Battery_Optimization'),
+                leading: Icon(Icons.battery_charging_full_sharp,),
                 subtitle: translate('please_allow_the_app_to_be_excluded'),
                 onToggle: (bool value) {ignoreBatteryOptimizationsHandler();},
                 switchValue: isBatteryOptimized,

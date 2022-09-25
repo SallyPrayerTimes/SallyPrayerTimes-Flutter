@@ -32,7 +32,7 @@ public class AthanServiceBroasdcastReceiver extends BroadcastReceiver{
         startAthan(context);
     }
 
-    public static  void startAthan(Context context){
+    public static void startAthan(Context context){
         startAthanNotification(context);
 
         if(SmallWidgetProvider.isEnabled){

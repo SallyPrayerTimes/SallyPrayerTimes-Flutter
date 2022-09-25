@@ -7,14 +7,20 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/typicons_icons.dart';
+import 'package:geolocator/geolocator.dart' as geolocator;
+import 'package:google_api_availability/google_api_availability.dart';
+import 'package:huawei_hmsavailability/huawei_hmsavailability.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 import 'package:permission_handler/permission_handler.dart' as PermissionHandler;
 import 'package:geocoding/geocoding.dart' as Geocoder;
 import 'package:location/location.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:provider/provider.dart';
 import 'package:sally_prayer_times/Classes/Configuration.dart';
+import 'package:sally_prayer_times/Pages/CalendarPage.dart';
 import 'package:sally_prayer_times/Pages/PrayersPage.dart';
 import 'package:sally_prayer_times/Classes/PreferenceUtils.dart';
 import 'package:sally_prayer_times/Pages/InfoPage.dart';
@@ -26,9 +32,11 @@ import 'package:sally_prayer_times/Providers/SettingsProvider.dart';
 import 'package:sally_prayer_times/Providers/ThemeProvider.dart';
 
 import 'Classes/TranslatePreferences.dart';
+import 'Huawei/HuaweiHelper.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await HuaweiHelper.init();
   await PreferenceUtils.init();
 
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
@@ -75,6 +83,7 @@ class MyApp extends StatelessWidget {
           localizationsDelegates: [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
+            MonthYearPickerLocalizations.delegate,
             localizationDelegate
           ],
           debugShowCheckedModeBanner: false,
@@ -148,20 +157,14 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   bool isBatteryOptimized = PreferenceUtils.getBool(Configuration.IS_BATTERY_OPTIMIZED, false);
   ignoreBatteryOptimizationsHandler() async{
     if(isBatteryOptimized == false){
-      var status = await PermissionHandler.Permission.ignoreBatteryOptimizations.status;
-      if (status.isGranted == false) {
-        bool isOptimised = await PermissionHandler.Permission.ignoreBatteryOptimizations.request().isGranted;
-        if(isOptimised == true){
-          PreferenceUtils.setBool(Configuration.IS_BATTERY_OPTIMIZED, isOptimised);
-          isBatteryOptimized = isOptimised;
-          setState(() {
-            _batteryOptimizationMessage = translate('the_app_is_excluded');
-          });
-        }else{
-          setState(() {
-            _batteryOptimizationMessage = translate('please_allow_the_app_to_be_excluded');
-          });
-        }
+      var request = await PermissionHandler.Permission.ignoreBatteryOptimizations.request();
+      bool isOptimised = await PermissionHandler.Permission.ignoreBatteryOptimizations.status.isGranted;
+      if(isOptimised == true){
+        PreferenceUtils.setBool(Configuration.IS_BATTERY_OPTIMIZED, isOptimised);
+        isBatteryOptimized = isOptimised;
+        setState(() {
+          _batteryOptimizationMessage = translate('the_app_is_excluded');
+        });
       }else{
         setState(() {
           _batteryOptimizationMessage = translate('please_allow_the_app_to_be_excluded');
@@ -208,6 +211,100 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   }
 
   void locationHandler() async{
+    if(HuaweiHelper.isHmsAviable){
+      GooglePlayServicesAvailability googlePlayServicesAvailability = await GoogleApiAvailability.instance.checkGooglePlayServicesAvailability();
+      if(googlePlayServicesAvailability == GooglePlayServicesAvailability.success){
+        locationHandlerGoogle();
+      }else{
+        locationHandlerHuawei();
+      }
+    }else{
+      locationHandlerGoogle();
+    }
+  }
+
+  void locationHandlerHuawei() async{
+    try {
+      EasyLoading.show(status: translate('loading'));
+
+      bool serviceEnabled;
+      geolocator.LocationPermission permission;
+      serviceEnabled = await geolocator.Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationMessage = translate('please_enable_GPS_location');
+        });
+        EasyLoading.dismiss(animation: true);
+        return;
+      }
+
+      permission = await geolocator.Geolocator.checkPermission();
+      if (permission == geolocator.LocationPermission.denied) {
+        permission = await geolocator.Geolocator.requestPermission();
+        if (permission == geolocator.LocationPermission.denied || permission == geolocator.LocationPermission.deniedForever) {
+          setState(() {
+            _locationMessage = translate('please_allow_the_app_to_get_your_location');
+          });
+          EasyLoading.dismiss(animation: true);
+          return;
+        }
+      }
+
+      geolocator.Position? position =  await geolocator.Geolocator.getCurrentPosition(
+        timeLimit: Duration(seconds: 10),
+        forceAndroidLocationManager: true,
+        desiredAccuracy: geolocator.LocationAccuracy.medium,
+      );
+
+      if(position == null || position.longitude == 0 || position.latitude == 0){
+        setState(() {
+          _locationMessage = translate('try_moving_your_phone');
+        });
+        EasyLoading.dismiss(animation: true);
+        return;
+      }
+
+      Provider.of<SettingsProvider>(context, listen: false).longitude = position.longitude.toString();
+      Provider.of<SettingsProvider>(context, listen: false).latitude = position.latitude.toString();
+
+      Provider.of<SettingsProvider>(context, listen: false).LocationLongLat.clear();
+      Provider.of<SettingsProvider>(context, listen: false).LocationLongLat = {'longitude': position.longitude.toString(), 'latitude': position.latitude.toString()};
+
+      try{
+        var placemarks = await Geocoder.placemarkFromCoordinates(position.latitude, position.longitude);
+        Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+        Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
+      }catch(e){
+        try{
+          var placemarks = await Geocoder.placemarkFromCoordinates(position.latitude, position.longitude);
+          Provider.of<SettingsProvider>(context, listen: false).country = placemarks.first.country!;
+          Provider.of<SettingsProvider>(context, listen: false).city = placemarks.first.locality! + ' ('+placemarks.first.street!+')';
+        }catch(e){
+          Provider.of<SettingsProvider>(context, listen: false).country = position.longitude.toString();
+          Provider.of<SettingsProvider>(context, listen: false).city = position.latitude.toString();
+        }
+      }
+
+      //calculate timezone
+      try{
+        int offsetInMillis = DateTime.now().timeZoneOffset.inMilliseconds;
+        String offset = (offsetInMillis / 3600000).abs().toInt().toString() +'.'+ ((offsetInMillis / 60000) % 60).abs().toInt().toString();
+        String timeZoneOffset = (offsetInMillis >= 0 ? "" : "-") + offset;
+        double timeZone = double.parse(timeZoneOffset);
+        Provider.of<SettingsProvider>(context, listen: false).timezone = timeZone.toString();
+      }catch(e){}
+
+      EasyLoading.dismiss(animation: true);
+      setState(() {
+        _locationMessage = translate('location_saved')+': ' + Provider.of<SettingsProvider>(context, listen: false).country +' / '+ Provider.of<SettingsProvider>(context, listen: false).city;
+      });
+
+    } catch (e) {
+      EasyLoading.dismiss(animation: true);
+    }
+  }
+
+  void locationHandlerGoogle() async{
     EasyLoading.show(status: translate('loading'));
 
     Location location = new Location();
@@ -379,7 +476,19 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                     items: _languages.map((String val) {
                       return new DropdownMenuItem<String>(
                         value: val,
-                        child: new Text(translate(val)),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(right: 10, left: 10),
+                              child: Image.asset(
+                                val == Configuration.arabicNameKey ? "assets/flags/saudia_flag.png" :
+                                val == Configuration.italianoNameKey ? "assets/flags/italy_flag.png" :
+                                val == Configuration.frenchNameKey ? "assets/flags/france_flag.png" : "assets/flags/usa_flag.png" ,
+                                width: 32, height: 32,),
+                            ),
+                            Text(translate(val)),
+                          ],
+                        ),
                       );
                     }).toList(),
                     hint: Text(translate('please_choose_a_language')),
@@ -391,7 +500,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                     }),
                 Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 0, right: 0, left: 0),
-                  child: Text(_languageMessage, style: TextStyle(fontSize: 12, color: Colors.green),),
+                  child: Text(_languageMessage, style: TextStyle(fontSize: 14, color: Colors.green),),
                 ),
               ],
             ),
@@ -422,7 +531,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 0, bottom: 20, right: 0, left: 0),
-                  child: Text(translate('please_allow_the_app_to_be_excluded'), style: TextStyle(fontSize: 12, color: Colors.red),),
+                  child: Text(translate('please_allow_the_app_to_be_excluded'), style: TextStyle(fontSize: 14, color: Colors.red),),
                 ),
                 ElevatedButton(
                   onPressed: ignoreBatteryOptimizationsHandler,
@@ -439,7 +548,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 0, right: 0, left: 0),
-                  child: Text(_batteryOptimizationMessage, style: TextStyle(fontSize: 12, color: Colors.green),),
+                  child: Text(_batteryOptimizationMessage, style: TextStyle(fontSize: 14, color: Colors.green),),
                 ),
               ],
             ),
@@ -470,7 +579,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 0, bottom: 20, right: 0, left: 0),
-                  child: Text(translate('please_allow_the_app_to_get_your_location'), style: TextStyle(fontSize: 12, color: Colors.red),),
+                  child: Text(translate('please_allow_the_app_to_get_your_location'), style: TextStyle(fontSize: 14, color: Colors.red),),
                 ),
                 ElevatedButton(
                   onPressed: locationHandler,
@@ -487,7 +596,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 0, right: 0, left: 0),
-                  child: Text(_locationMessage, style: TextStyle(fontSize: 12, color: Colors.green),),
+                  child: Text(_locationMessage, style: TextStyle(fontSize: 14, color: Colors.green),),
                 ),
               ],
             ),
@@ -515,6 +624,10 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 0, bottom: 50, right: 0, left: 0),
                   child: Text(translate('Select_a_calculation_method'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 0, bottom: 20, right: 0, left: 0),
+                  child: Text(translate('select_near_method_location'), style: TextStyle(fontSize: 14, color: Colors.red),),
                 ),
                 DropdownButton<String>(
                     isExpanded: true,
@@ -545,7 +658,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                     }),
                 Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 0, right: 0, left: 0),
-                  child: Text(_calculationMethodMessage, style: TextStyle(fontSize: 12, color: Colors.green),),
+                  child: Text(_calculationMethodMessage, style: TextStyle(fontSize: 14, color: Colors.green),),
                 ),
               ],
             ),
@@ -555,8 +668,6 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
       onDone: () => _onIntroEnd(context),
       onSkip: () => _onIntroEnd(context),
       showSkipButton: true,
-      skipFlex: 0,
-      nextFlex: 0,
       //rtl: true, // Display as right-to-left
       skip: Text(translate('Skip'), style: TextStyle(color: Colors.white),),
       next: const Icon(Icons.arrow_forward, color: Colors.white,),
@@ -612,9 +723,10 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _buildScreens() {
     return [
       PrayersPage(),
+      CalendarPage(),
       QiblaPage(),
       SettingsPage(),
-      InfoPage(),
+      //InfoPage(),
     ];
   }
 
@@ -623,6 +735,12 @@ class _MyHomePageState extends State<MyHomePage> {
       PersistentBottomNavBarItem(
         icon: Icon(FontAwesome5.pray),
         title: translate('prayers'),
+        activeColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+        inactiveColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(FontAwesome.calendar),
+        title: translate('calendar'),
         activeColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
         inactiveColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
       ),
@@ -638,12 +756,14 @@ class _MyHomePageState extends State<MyHomePage> {
         activeColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
         inactiveColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
       ),
+    /*
       PersistentBottomNavBarItem(
         icon: Icon(Icons.info),
         title: translate('info'),
         activeColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
         inactiveColorPrimary: Provider.of<ThemeProvider>(context, listen: true).navigationBarColor,
       ),
+      */
     ];
   }
 
@@ -675,7 +795,7 @@ class _MyHomePageState extends State<MyHomePage> {
         curve: Curves.ease,
         duration: Duration(milliseconds: 200),
       ),
-      navBarStyle: NavBarStyle.style1, // Choose the nav bar style with this property.
+      navBarStyle: NavBarStyle.style14, // Choose the nav bar style with this property.
     );
   }
 

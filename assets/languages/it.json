@@ -159,5 +159,11 @@
   "Calculating_Asr_Time": "Calcolo dell'ora del Asr",
   "Angle_Based_Method": "Metodo basato sull'angolo",
   "Fajr_angle": "angolo di Fajr",
-  "Ishaa_angle": "angolo di Ishaa"
+  "Ishaa_angle": "angolo di Ishaa",
+  "calendar": "Calendario",
+  "miladi": "Gregoriano",
+  "hijri": "Hijri",
+  "calendar_type" : "Tipo di calendario",
+  "select_date" : "Scegli una data",
+  "select_near_method_location": "Seleziona il metodo più vicino alla tua posizione"
 }
